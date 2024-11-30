@@ -1,5 +1,5 @@
-import { Select } from '@chakra-ui/react';
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Buyer } from 'src/buyer/buyer.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -12,7 +12,7 @@ export class User {
   @Column()
   LastName: string;
 
-  @Column({unique: true})
+  @Column({ unique: true })
   Email: string;
 
   // @Column()
@@ -20,4 +20,7 @@ export class User {
 
   @Column()
   Password: string;
+
+  @OneToMany(() => Buyer, (buyer) => buyer.User_ID)
+  buyer: Buyer[];
 }

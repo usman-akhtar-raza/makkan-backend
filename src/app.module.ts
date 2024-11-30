@@ -6,6 +6,8 @@ import { User } from './user/user.entity';
 import { UserModule } from './user/user.module';
 import { HouseModule } from './house/house.module';
 import { House } from './house/house.entity';
+import { BuyerModule } from './buyer/buyer.module';
+import { Buyer } from './buyer/buyer.entity';
 
 @Module({
   imports: [
@@ -16,11 +18,12 @@ import { House } from './house/house.entity';
       username: 'root',
       password: '',
       database: 'MakkanEstate',
-      entities: [User,House],
+      entities: [User,House, Buyer],
       synchronize: false, // set to false in production
     }),
     UserModule,
     HouseModule,
+    BuyerModule,
   ],
   controllers: [AppController],
   providers: [AppService],

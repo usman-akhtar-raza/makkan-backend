@@ -81,22 +81,24 @@ export class HouseController {
   }
   @Put(':id')
   updateHouse(
-    @Body('House_ID') House_ID: number,
-    @Body('User_ID') User_ID: number,
-    @Body('Price') Price: number,
-    @Body('Status') Status: string,
-    @Body('Category') Category: string,
-    @Body('Location') Location: string,
-    @UploadedFile() file: multer.File,
+    @Param('id') House_ID: number,
+    @Body() houseData: {
+      User_ID: number;
+      Price: number;
+      Status: string;
+      Category: string;
+      Location: string;
+    },
+    @UploadedFile() Image: multer.File,
   ) {
     return this.houseServise.updateHouse(
       House_ID,
-      User_ID,
-      Price,
-      Status,
-      Category,
-      Location,
-      file,
+      houseData.User_ID,
+      houseData.Price,
+      houseData.Status,
+      houseData.Category,
+      houseData.Location,
+      Image,
     );
   }
 

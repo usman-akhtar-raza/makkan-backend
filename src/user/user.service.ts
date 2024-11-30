@@ -4,13 +4,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 
-
-
-
-
-
- 
-
 @Injectable()
 export class UserService {
   constructor(
@@ -24,33 +17,55 @@ export class UserService {
   // }
 
   async validateUser(email: string, password: string): Promise<User | null> {
-    const user = this.userRepository.findOne({where:{Email: email, Password: password}});
-    return user || null;
-  }
-  
-  async register(userData: { FirstName: string; LastName: string; Email: string; Password: string }) {
-    const { FirstName, LastName, Email, Password } = userData;
+    const user = await this.userRepository.findOne({
+      where: { Email: email },
+    });
 
-    
-    
+    if (!user) {
+      return null;
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.Password);
+    if (!isValidPassword) {
+      return null;
+    }
+
+    return user;
+  }
+
+  async register(
+    FirstName: string,
+    LastName: string,
+    Email: string,
+    Password: string,
+  ) {
+    const  password = Password.toString();
+    console.log(
+      `Registering user: ${FirstName} ${LastName} ${Email} ${password}`,
+    );
+    // const { FirstName, LastName, Email, Password } = userData;
+
+    // console.log(userData, 'userdata is here');
     // Check if user already exists
-    const existingUser = await this.userRepository.findOne({ where: { Email } });
+    const existingUser = await this.userRepository.findOne({
+      where: { Email },
+    });
+    console.log(existingUser, 'existing user is here');
     if (existingUser) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
-
     // Hash the password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(Password, salt);
-
+    console.log(hashedPassword, 'hashed password is here');
     // Create and save the user
     const user = this.userRepository.create({
-      FirstName,
-      LastName,
-      Email,
-      Password: hashedPassword,
+      FirstName: FirstName,
+      LastName: LastName,
+      Email: Email,
+      Password: password,
     });
-
+    console.log(user, 'user is here');
     await this.userRepository.save(user);
 
     return {
@@ -58,7 +73,4 @@ export class UserService {
       user: { id: user.User_ID, FirstName, LastName, Email },
     };
   }
-
-
-
-  }
+}

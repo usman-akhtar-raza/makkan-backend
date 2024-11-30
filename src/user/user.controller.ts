@@ -40,16 +40,19 @@ export class UserController {
   }
   @Post('register')
   async register(
-    @Body('firstName') FirstName: string,
-    @Body('lastName') LastName: string,
-    @Body('email') Email: string,
-    @Body('password') Password: string,
+    @Body()
+    userData: {
+      FirstName: string;
+      LastName: string;
+      Email: string;
+      Password: string;
+    },
   ) {
-    return await this.userService.register({
-      FirstName,
-      LastName,
-      Email,
-      Password,
-    });
+    return await this.userService.register(
+      userData.FirstName,
+      userData.LastName,
+      userData.Email,
+      userData.Password,
+    );
   }
 }
