@@ -46,10 +46,21 @@ export class HouseService {
     private readonly houseRepository: Repository<House>,
   ) {}
 
-  async getHouse() {
-    return await this.houseRepository.find();
-  }
+  // async getHouse() {
+  //   return await this.houseRepository.find();
+    
+  // }
 
+  async getHouse() {
+    const houses = await this.houseRepository.find();
+    // Convert BLOB to Base64
+    return houses.map(house => ({
+      ...house,
+      Image: house.Image
+        ? Buffer.from(house.Image).toString('base64')
+        : null, // Convert only if Image exists
+    }));
+  }
   async addHouse(
     House_ID: number,
     User_ID: number,

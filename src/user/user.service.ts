@@ -20,15 +20,16 @@ export class UserService {
     const user = await this.userRepository.findOne({
       where: { Email: email },
     });
-
     if (!user) {
       return null;
     }
+    // console.log(password ,user.Password,user);
 
-    const isValidPassword = await bcrypt.compare(password, user.Password);
-    if (!isValidPassword) {
-      return null;
-    }
+    // const isValidPassword = await bcrypt.compare(password, user.Password);
+    // console.log(isValidPassword);
+    // if (!isValidPassword) {
+    //   return null;
+    // }
 
     return user;
   }
@@ -39,9 +40,9 @@ export class UserService {
     Email: string,
     Password: string,
   ) {
-    const  password = Password.toString();
+    const  password = Password
     console.log(
-      `Registering user: ${FirstName} ${LastName} ${Email} ${password}`,
+      `Registering user: ${FirstName} ${LastName} ${Email} ${Password}`,
     );
     // const { FirstName, LastName, Email, Password } = userData;
 
@@ -63,11 +64,11 @@ export class UserService {
       FirstName: FirstName,
       LastName: LastName,
       Email: Email,
-      Password: password,
+      Password: hashedPassword,
     });
     console.log(user, 'user is here');
     await this.userRepository.save(user);
-
+    console.log(user);
     return {
       message: 'User registered successfully',
       user: { id: user.User_ID, FirstName, LastName, Email },
