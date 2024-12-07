@@ -1,14 +1,17 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, UseGuards } from '@nestjs/common';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
+import { AuthGuard } from '@nestjs/passport';
+import { JwtService } from '@nestjs/jwt';
 
+// @UseGuards(AuthGuard)
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
-    // private jwtService: JwtService, // Inject JwtService to generate token
+    private jwtService: JwtService, // Inject JwtService to generate token
   ) {}
 
   // Method to get all users (same as your previous method)
@@ -16,23 +19,51 @@ export class UserService {
   //   return this.userRepository.find();
   // }
 
-  async validateUser(email: string, password: string): Promise<User | null> {
+
+  async validateUser(email: string, password: string): Promise<{ token: string; user: Partial<User> } | null> {
     const user = await this.userRepository.findOne({
       where: { Email: email },
     });
     if (!user) {
       return null;
     }
-    // console.log(password ,user.Password,user);
 
-    // const isValidPassword = await bcrypt.compare(password, user.Password);
-    // console.log(isValidPassword);
+    const isValidPassword = await bcrypt.compare(password, user.Password);
     // if (!isValidPassword) {
     //   return null;
     // }
 
-    return user;
+    const payload = { id: user.User_ID, email: user.Email, name: user.FirstName };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      token,
+      user: {
+        User_ID: user.User_ID,
+        Email: user.Email,
+        FirstName: user.FirstName,
+        LastName: user.LastName
+      },
+    };
   }
+
+  // async validateUser(email: string, password: string): Promise<User | null> {
+  //   const user = await this.userRepository.findOne({
+  //     where: { Email: email },
+  //   });
+  //   if (!user) {
+  //     return null;
+  //   }
+  //   // console.log(password ,user.Password,user);
+
+  //   // const isValidPassword = await bcrypt.compare(password, user.Password);
+  //   // console.log(isValidPassword);
+  //   // if (!isValidPassword) {
+  //   //   return null;
+  //   // }
+
+  //   return user;
+  // }
 
   async register(
     FirstName: string,

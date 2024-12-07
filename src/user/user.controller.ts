@@ -6,9 +6,10 @@ import {
   Param,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-
+// import { AuthGuard } from '@nestjs/passport';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -19,6 +20,7 @@ export class UserController {
   // }
 
   // Endpoint to login (authenticate the user)
+  // @UseGuards(AuthGuard)
   @Post('validate')
   async validateUser(@Body() body: { email: string; password: string }) {
     const { email, password } = body;
@@ -30,14 +32,37 @@ export class UserController {
       );
     }
 
-    const user = await this.userService.validateUser(email, password);
+    const result = await this.userService.validateUser(email, password);
 
-    if (!user) {
-      throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
-    }
+    // if (!result) {
+    //   throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+    // }
 
-    return user;
+    return {
+      message: 'Login successful',
+      token: result.token,
+      user: result.user,
+    };
   }
+
+  // async validateUser(@Body() body: { email: string; password: string }) {
+  //   const { email, password } = body;
+
+  //   if (!email || !password) {
+  //     throw new HttpException(
+  //       'Email and password are required',
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   }
+
+  //   const user = await this.userService.validateUser(email, password);
+
+  //   if (!user) {
+  //     throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
+  //   }
+
+  //   return user;
+  // }
   @Post('register')
   async register(
     @Body()
